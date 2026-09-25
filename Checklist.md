@@ -87,7 +87,7 @@ cat /sys/kernel/mm/transparent_hugepage/enabled
 systemctl show postgresql --property=LimitNOFILE
 which nmon mutt sendmail pgbadger pg_activity pgbackrest barman 2>/dev/null
 ```
-___________________________________________________________________________________________________________________________________________________________________
+________________________________________________________________________________________________________________________________________________________________________________________________________________
 
 
 
@@ -101,6 +101,35 @@ Estes componentes do Setup WiseDB não podem ser coletados via scripts automatiz
 - [ ] **Homologação Comercial do Monitoramento:** Confirmar se o Órgão contratou o licenciamento da ferramenta *Site24x7* para liberação da instalação do agente oficial.
 - [ ] **Execução de Teste de Mesa de Desastre (PITR):** Realizar a restauração física simulada de um dump e dos arquivos de WAL em um servidor isolado de testes para homologar a integridade das cópias de segurança.
 
+________________________________________________________________________________________________________________________________________________________________________________________________________________
 
+
+## 🔍 Guia Operacional de Descoberta para Itens Externos
+
+Procedimento para levantamento de requisitos não-lógicos, homologações com fornecedores de software e validações contratuais/operacionais fora do terminal.
+
+### 1. Definição de Timeouts e Regras de Retenção de Backup
+*   **Ação:** Abrir chamado ou enviar comunicação formal para a **Gestão de TI / Equipe de Governança do Órgão**.
+*   **Perguntas Diretivas:**
+    *   *Timeout de Execução:* "Qual o tempo máximo tolerável que uma instrução/query de usuário pode reter locks e travar o banco antes de ser abortada automaticamente? (Sugerimos o teto de 2 minutos para operações OLTP comuns)."
+    *   *Janela de Retenção:* "Qual o período mínimo de histórico de retenção de backups (dumps e archives) que a instituição exige manter armazenado no Storage local/cloud para fins de compliance?"
+
+### 2. Validação de Compatibilidade de Locale/Collation (`pt_BR` vs `en_US`)
+*   **Ação:** Acionar o suporte técnico ou os engenheiros de software responsáveis pelo desenvolvimento das aplicações corporativas (**SIGE, Custas e Geter Giro**).
+*   **Item de Validação:**
+    *   *Alinhamento de Dicionário:* "Se realizarmos a alteração do parâmetro `LC_COLLATE` do cluster PostgreSQL de `en_US.UTF-8` para `pt_BR.UTF-8` para corrigir a ordenação nativa de acentuações no Brasil, a aplicação de vocês homologa formalmente essa alteração ou há riscos de quebra de comportamento em buscas e relatórios?"
+
+### 3. Validação de Licenciamento do Monitoramento (Site24x7)
+*   **Ação:** Consultar o **Contrato de Prestação de Serviços (SLA/Escopo)** firmado entre a consultoria e o Órgão, ou realizar alinhamento interno com a liderança técnica (Fábio).
+*   **Item de Validação:**
+    *   *Auditoria de Escopo:* Verificar se o fornecimento das licenças do agente *Site24x7* está sob a responsabilidade da consultoria ou se o monitoramento será integrado às ferramentas vigentes do Órgão (ex: topologia de agentes Zabbix ativa na porta `10050`).
+
+### 4. Execução e Homologação do Teste de Restore e PITR
+*   **Ação:** Executar validação física e funcional em um ambiente de laboratório isolado (VM de Sandbox).
+*   **Roteiro de Execução:**
+    1.  Provisionar uma Máquina Virtual temporária isolada da rede de produção, utilizando a mesma distribuição de S.O. e versão exata do motor do banco auditado (PostgreSQL `14.5`).
+    2.  Transferir o arquivo de backup gerado pelo script automatizado local (`/WiseDb/scripts/Dumps/Pgdump_Export_Full_All.sh`) para o storage dessa nova VM.
+    3.  Efetuar o processo de restauração utilizando o utilitário nativo correspondente (`pg_restore` ou `psql`).
+    4.  **Critério de Aceite:** O item será marcado como **Validado e Concluído** se o cluster inicializar sem corrupção física de blocos e os seletores SQL retornarem a leitura íntegra dos dados nas tabelas.
 
 
