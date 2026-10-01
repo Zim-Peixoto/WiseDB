@@ -61,7 +61,7 @@ PORT="5432"
 USERNAME="postgres"
 export BINARY=/usr/local/postgres_1610/bin
 export TIPO="DIARIO"
-export DIR=/backup/postgresql/Bkp_Logico/$DATABASE
+export DIR=export DIR=/backup/$(hostname)/Bkp_Logico/$DATABASE
 export DATA=`date +%d%m%Y_%H%M`
 export HORAINI=`date +%H:%M:%S`
 export PATH=$PATH:/WiseDb/bin
